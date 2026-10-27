@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WhatsApp Business API – Client Requirement Form</title>
+<style>
+:root{--bg:#f4f7f5;--card:#fff;--tx:#14231c;--mut:#5b6b62;--bd:#d5ded9;--ac:#128c4a;--act:#fff;--in:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1713;--card:#17221c;--tx:#e8f1ec;--mut:#9fb2a8;--bd:#2c3d34;--ac:#2ecc71;--act:#07210f;--in:#101a15}}
+:root[data-theme="dark"]{--bg:#0f1713;--card:#17221c;--tx:#e8f1ec;--mut:#9fb2a8;--bd:#2c3d34;--ac:#2ecc71;--act:#07210f;--in:#101a15}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.w{max-width:760px;margin:0 auto;padding:20px 16px 60px}
+header{background:var(--ac);color:var(--act);border-radius:14px;padding:22px;margin-bottom:16px}
+header h1{margin:0 0 6px;font-size:1.5rem}header p{margin:0;opacity:.92;font-size:.95rem}
+.bar{height:6px;background:var(--bd);border-radius:6px;margin:0 0 16px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--ac);transition:width .3s}
+section{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:18px;margin-bottom:16px}
+section h2{margin:0 0 12px;font-size:1.1rem;color:var(--ac)}
+.q{margin-bottom:18px}.q>label,.q>.l{display:block;font-weight:600;margin-bottom:6px}
+.q .n{color:var(--ac);margin-right:6px}
+input[type=text],input[type=email],input[type=tel],select,textarea{width:100%;padding:10px 12px;border:1px solid var(--bd);border-radius:8px;background:var(--in);color:var(--tx);font:inherit}
+textarea{min-height:84px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--ac);outline-offset:0}
+.o{display:flex;gap:8px;align-items:flex-start;padding:4px 0;font-weight:400}
+.o input{margin-top:5px;accent-color:var(--ac)}
+.hint{font-size:.85rem;color:var(--mut);margin:-2px 0 6px}
+.oth{margin-top:6px}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}
+button{font:inherit;font-weight:600;padding:11px 18px;border-radius:8px;border:1px solid var(--ac);background:var(--ac);color:var(--act);cursor:pointer}
+button.s{background:transparent;color:var(--ac)}
+#out{min-height:200px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.82rem}
+.cb{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:16px}
+#msg{color:var(--ac);font-weight:600;min-height:1.4em}
+@media print{.btns,.bar,#res{display:none}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="w">
+<header><h1>WhatsApp Business API – Client Onboarding</h1>
+<p>Thank you for your interest in WhatsApp Business API setup and marketing. Please answer the questions below so we can recommend the right solution and prepare an accurate quotation. Takes about 10 minutes.</p></header>
+<div class="bar"><i id="pb"></i></div>
+<form id="f" novalidate></form>
+<div class="cb"><label class="o"><input type="checkbox" id="consent"><span>I confirm that I am authorised to share this business data, and I understand that WhatsApp marketing must comply with applicable consent, privacy, opt-out and platform policies. <b>*</b></span></label></div>
+<div class="btns"><button type="button" id="gen">Generate my answers</button></div>
+<div id="msg"></div>
+<section id="res" hidden>
+<h2>Your answers – ready to send</h2>
+<p class="hint">Use any option below to send these answers back to us.</p>
+<textarea id="out" readonly></textarea>
+<div class="btns">
+<button type="button" id="cp">Copy answers</button>
+<button type="button" class="s" id="ml">Send by email</button>
+<button type="button" class="s" id="pr">Print / Save as PDF</button>
+</div>
+</section>
+</div>
+<script>
+var YN=['Yes','No','Not sure'];
+var RG=['Under 500','500 – 2,000','2,000 – 10,000','10,000 – 50,000','50,000+'];
+var BG=['Under ₹2,000','₹2,000 – ₹5,000','₹5,000 – ₹10,000','₹10,000 – ₹25,000','₹25,000+','Not decided'];
+// types: t text, e email, p phone, a paragraph, r radio, c checkbox, s select
+var S=[
+['Business Information',[
+['t','Business / brand name'],
+['t','Contact person’s name and designation'],
+['e','Business email address'],
+['p','Mobile number (with country code)'],
+['a','Business website and social media links'],
+['s','Business type / industry',['Retail / E-commerce','Real estate','Education / Coaching','Healthcare / Wellness','Travel / Hospitality','Finance / Insurance','IT / SaaS / Services','Restaurant / Food','Events / Entertainment','Other (please specify)']],
+['t','Business location and primary target market'],
+['r','Do you have a registered business?',['Yes','No','In process']],
+['r','Do you have a business email, GST details or other business verification documents available?',['Yes','No','Some documents']]
+]],
+['WhatsApp Account & API Setup',[
+['r','Do you currently use WhatsApp Business?',['Yes – WhatsApp Business app','Yes – personal WhatsApp only','No']],
+['r','Is your WhatsApp number already connected to another API provider?',YN],
+['r','Do you want to use your existing number or a new number?',['Existing number','New number','Not decided']],
+['r','Is the number currently used for personal chats, business chats, or both?',['Personal','Business','Both','Not used yet']],
+['r','Do you have access to your Meta Business Portfolio and Facebook Page?',['Both','Only one of them','Neither','Not sure']],
+['r','Is your business verified on Meta, if applicable?',['Yes','No','In process','Not sure']],
+['r','Do you have an existing WhatsApp Business Account (WABA)?',YN],
+['r','Who will own and pay for the WhatsApp API provider account?',['Client (us)','Agency on our behalf','Not decided']]
+]],
+['Database & Consent',[
+['r','How many contacts are in your database?',RG],
+['c','Where was the database collected from?',['Website','Enquiries','Past customers','Events','Purchased list','Other (please specify)']],
+['r','Have these contacts explicitly agreed to receive WhatsApp messages from your business?',['Yes, all','Some of them','No','Not sure']],
+['a','When and how was consent collected?'],
+['r','Can you provide the source and consent records for the contacts?',['Yes','Partly','No']],
+['r','Does the database contain Indian numbers, international numbers, or both?',['Indian only','International only','Both']],
+['c','Is the database in Excel, CSV, CRM or another format?',['Excel','CSV','CRM','Other (please specify)']],
+['r','When was the database last updated?',['Within 3 months','3 – 12 months ago','1 – 2 years ago','More than 2 years ago']],
+['r','Are unsubscribe / opt-out records maintained?',YN],
+['a','Have you previously sent bulk WhatsApp messages to this database? If yes, what happened?']
+]],
+['Campaign Requirements',[
+['c','What is the main objective?',['Lead generation','Sales','Offers','Reactivation','Event promotion','Updates / notifications']],
+['a','What product or service will be promoted?'],
+['r','How many contacts do you want to message in the first campaign?',RG],
+['r','How frequently do you plan to send campaigns?',['One-time','Weekly','Every 2 weeks','Monthly','Occasional / event based']],
+['r','Do you already have message copy, images, videos or offer creatives?',['Yes, all','Some','No']],
+['r','Do you need help writing messages and creating campaign creatives?',['Yes','No','Maybe']],
+['r','Do you need approved message templates in multiple languages?',['English only','English + Hindi','Other languages (mention below)']],
+['c','What action should the recipient take?',['Reply','Call','Visit website','Fill a form','Purchase','Other (please specify)']],
+['t','What is your expected campaign budget, excluding taxes?','₹'],
+['a','What result will define campaign success?']
+]],
+['Automation & Team',[
+['r','Do you need automated replies or a chatbot?',['Basic auto replies','Full chatbot','No','Not sure']],
+['r','Do you need lead qualification and follow-up sequences?',YN],
+['c','Do you need Google Sheets, CRM, website or lead-form integration?',['Google Sheets','CRM (name it below)','Website','Lead forms','None']],
+['r','How many people will manage incoming WhatsApp conversations?',['1','2 – 3','4 – 10','More than 10']],
+['r','Do you need a shared team inbox and agent assignment?',YN],
+['r','Do you require campaign reports and delivery / reply tracking?',YN],
+['t','Who will respond to incoming leads, and within what time?']
+]],
+['Budget & Approval',[
+['r','What is your preferred monthly platform budget?',BG],
+['r','What is your one-time setup budget?',BG],
+['r','Would you prefer a basic broadcast setup or a complete automation solution?',['Basic broadcast setup','Complete automation solution','Need your recommendation']],
+['r','Are you comfortable paying the API provider and Meta messaging charges directly?',['Yes','No','Need more explanation']],
+['t','Who will approve the final quotation and provide required access?']
+]]
+];
+var f=document.getElementById('f'),n=0,Q=[];
+S.forEach(function(sec,si){
+ var s=document.createElement('section');
+ var h=document.createElement('h2');h.textContent='Section '+(si+1)+' — '+sec[0];s.appendChild(h);
+ sec[1].forEach(function(q){
+  n++;var id='q'+n,t=q[0],d=document.createElement('div');d.className='q';
+  var lab=document.createElement(t=='r'||t=='c'?'div':'label');
+  lab.className='l';if(lab.tagName=='LABEL')lab.htmlFor=id;
+  lab.innerHTML='<span class="n">'+n+'.</span>';
+  lab.appendChild(document.createTextNode(q[1]));d.appendChild(lab);
+  if(t=='t'||t=='e'||t=='p'){var i=document.createElement('input');i.type=t=='t'?'text':t=='e'?'email':'tel';i.id=id;if(t=='t'&&q[2])i.placeholder=q[2];d.appendChild(i)}
+  else if(t=='a'){var a=document.createElement('textarea');a.id=id;d.appendChild(a)}
+  else if(t=='s'){var sl=document.createElement('select');sl.id=id;sl.innerHTML='<option value="">Select…</option>';q[2].forEach(function(o){var op=document.createElement('option');op.textContent=o;sl.appendChild(op)});d.appendChild(sl)}
+  else{
+   if(t=='c'){var hh=document.createElement('div');hh.className='hint';hh.textContent='Select all that apply';d.appendChild(hh)}
+   q[2].forEach(function(o){var lb=document.createElement('label');lb.className='o';var i=document.createElement('input');i.type=t=='r'?'radio':'checkbox';i.name=id;i.value=o;lb.appendChild(i);var sp=document.createElement('span');sp.textContent=o;lb.appendChild(sp);d.appendChild(lb)});
+   var ot=document.createElement('input');ot.type='text';ot.className='oth';ot.placeholder='Other details / comments (optional)';ot.id=id+'o';d.appendChild(ot);
+  }
+  Q.push({id:id,t:t,l:q[1],n:n,sec:si});s.appendChild(d);
+ });
+ f.appendChild(s);
+});
+function val(q){
+ if(q.t=='r'||q.t=='c'){
+  var v=[].slice.call(document.querySelectorAll('[name='+q.id+']:checked')).map(function(x){return x.value});
+  var o=document.getElementById(q.id+'o').value.trim();if(o)v.push('Note: '+o);return v.join('; ');
+ }
+ return document.getElementById(q.id).value.trim();
+}
+function prog(){var a=0;Q.forEach(function(q){if(val(q))a++});document.getElementById('pb').style.width=(100*a/Q.length)+'%'}
+f.addEventListener('input',prog);f.addEventListener('change',prog);
+var txt='';
+document.getElementById('gen').onclick=function(){
+ var m=document.getElementById('msg');
+ if(!document.getElementById('consent').checked){m.textContent='Please tick the confirmation box at the bottom before continuing.';return}
+ var biz=val(Q[0])||'Client';
+ var o='WHATSAPP BUSINESS API – CLIENT REQUIREMENTS\nBusiness: '+biz+'\n',cs=-1;
+ Q.forEach(function(q){
+  if(q.sec!=cs){cs=q.sec;o+='\n=== '+S[cs][0].toUpperCase()+' ===\n'}
+  o+='\n'+q.n+'. '+q.l+'\n   → '+(val(q)||'(not answered)')+'\n';
+ });
+ o+='\nConfirmation: Client confirmed authority to share data and compliance with consent/opt-out/platform policies.\n';
+ txt=o;var r=document.getElementById('res');r.hidden=false;
+ document.getElementById('out').value=o;m.textContent='Done – now send the answers back using the buttons below.';
+ r.scrollIntoView({behavior:'smooth'});
+};
+document.getElementById('cp').onclick=function(){
+ var ta=document.getElementById('out'),m=document.getElementById('msg');
+ ta.select();var ok=false;
+ try{ok=document.execCommand('copy')}catch(e){}
+ if(!ok&&navigator.clipboard){navigator.clipboard.writeText(txt).then(function(){m.textContent='Copied! Paste it into WhatsApp or email.'},function(){m.textContent='Please select the text and copy it manually.'});return}
+ m.textContent=ok?'Copied! Paste it into WhatsApp or email.':'Please select the text and copy it manually.';
+};
+document.getElementById('ml').onclick=function(){
+ var s=encodeURIComponent('WhatsApp API Requirements – '+(val(Q[0])||'Client'));
+ var b=encodeURIComponent(txt);
+ window.open('mailto:?subject='+s+'&body='+b,'_blank');
+};
+document.getElementById('pr').onclick=function(){window.print()};
+</script>
+</body>
+</html>
